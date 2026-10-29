@@ -33,6 +33,11 @@
     <EmbeddedResource Include="Files\*.json" />
   </ItemGroup>
 
+  <!-- Embedded only (not copied): the Reference context of the scenario reads these from the assembly. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Files\Reference\*.json" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\KitStack.Seeding.Abstractions\KitStack.Seeding.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\KitStack.Seeding\KitStack.Seeding.csproj" />

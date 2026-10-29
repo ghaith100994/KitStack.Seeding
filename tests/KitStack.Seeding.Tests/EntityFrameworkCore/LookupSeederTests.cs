@@ -118,6 +118,18 @@ public class LookupSeederTests
     }
 
     [Fact]
+    public async Task Null_rows_are_ignored()
+    {
+        await using var fixture = await CreateAsync();
+        fixture.Files.Set(CountriesSeeder.File, """[null, { "Code": "SY", "Name": "Syria" }, null]""");
+
+        var result = await fixture.RunAsync();
+
+        Assert.True(result.Succeeded);
+        Assert.Equal(["SY"], await CodesAsync(fixture));
+    }
+
+    [Fact]
     public async Task ConflictsWith_skips_rows_that_clash_with_existing_or_new_rows()
     {
         await using var fixture = await CreateAsync();

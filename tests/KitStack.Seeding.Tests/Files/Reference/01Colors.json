@@ -1,0 +1,4 @@
+// Same file name as Files/01Colors.json: makes a prefix-less embedded lookup ambiguous.
+[
+  { "Code": "GREEN", "Name": "Green" }
+]

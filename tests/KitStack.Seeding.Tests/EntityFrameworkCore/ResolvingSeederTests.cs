@@ -37,6 +37,29 @@ public class ResolvingSeederTests
     }
 
     [Fact]
+    public async Task An_empty_file_seeds_nothing_and_does_not_fail()
+    {
+        await using var fixture = await CreateAsync();
+        fixture.Files.Set(CitiesSeeder.File, "[]");
+
+        var result = await fixture.RunAsync();
+
+        Assert.True(result.Succeeded);
+        Assert.Equal(0, await fixture.QueryAsync(db => db.Cities.CountAsync()));
+    }
+
+    [Fact]
+    public async Task A_blank_reference_key_resolves_to_nothing()
+    {
+        await using var fixture = await CreateAsync();
+        fixture.Files.Set(CitiesSeeder.File, """[{ "Name": "Blank", "CountryCode": "  " }, { "Name": "Missing" }, { "Name": "Amman", "CountryCode": "JO" }]""");
+
+        await fixture.RunAsync();
+
+        Assert.Equal(["Amman"], await fixture.QueryAsync(db => db.Cities.Select(x => x.Name!).ToListAsync()));
+    }
+
+    [Fact]
     public async Task Waits_while_its_prerequisites_are_missing()
     {
         await using var fixture = await CreateAsync(withCountries: false);

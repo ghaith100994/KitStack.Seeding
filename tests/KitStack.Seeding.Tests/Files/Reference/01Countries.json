@@ -1,0 +1,6 @@
+// Embedded only: read by the Reference context of the application scenario.
+[
+  { "Code": "SY", "Name": "Syria" },
+  { "Code": "JO", "Name": "Jordan" },
+  { "Code": "LB", "Name": "Lebanon" }
+]

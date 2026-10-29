@@ -34,6 +34,18 @@ public class SeederRunnerTests
         public override Task SeedAsync(Ctx context, CancellationToken cancellationToken) => throw new InvalidOperationException("boom");
     }
 
+    /// <summary>Cancels the run from inside the seeder, as a shutdown during startup would.</summary>
+    private sealed class CancelsRun() : Recording(5)
+    {
+        public static CancellationTokenSource? Source { get; set; }
+
+        public override async Task SeedAsync(Ctx context, CancellationToken cancellationToken)
+        {
+            await Source!.CancelAsync();
+            await Task.Delay(Timeout.Infinite, cancellationToken);
+        }
+    }
+
     private sealed class Named() : Recording(40), ISeeder<Ctx>
     {
         string ISeeder<Ctx>.Name => "Custom";
@@ -133,6 +145,20 @@ public class SeederRunnerTests
     }
 
     [Fact]
+    public async Task Cancellation_during_a_seeder_stops_the_run_even_with_LogAndContinue()
+    {
+        await using var provider = Build(b => b.AddSeeder<CancelsRun>().AddSeeder<FirstA>(), o => o.FailurePolicy = SeedFailurePolicy.LogAndContinue);
+        await using var scope = provider.CreateAsyncScope();
+        using var cts = new CancellationTokenSource();
+        CancelsRun.Source = cts;
+        var context = new Ctx();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            () => scope.ServiceProvider.GetRequiredService<ISeederRunner<Ctx>>().RunAsync(context, cts.Token));
+        Assert.Empty(context.Log);
+    }
+
+    [Fact]
     public async Task Default_name_is_the_type_name_and_can_be_overridden()
     {
         await using var provider = Build(b => b.AddSeeder<Named>());
@@ -150,7 +176,7 @@ public class SeederRunnerTests
 
         var seeders = provider.GetServices<ISeeder<Ctx>>().Select(x => x.GetType().Name).Order().ToList();
 
-        Assert.Equal(["Failing", "FirstA", "FirstB", "Named", "Second", "Third"], seeders);
+        Assert.Equal(["CancelsRun", "Failing", "FirstA", "FirstB", "Named", "Second", "Third"], seeders);
     }
 
     [Fact]

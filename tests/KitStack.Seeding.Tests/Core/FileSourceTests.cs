@@ -39,8 +39,27 @@ public class FileSourceTests
     {
         var source = new EmbeddedResourceSeedFileSource(typeof(FileSourceTests).Assembly);
 
-        var colors = await source.ReadListAsync<Color>("01Colors.json");
-        Assert.Equal(2, colors.Count);
+        var countries = await source.ReadListAsync<Color>("01Countries.json");
+        Assert.Equal(3, countries.Count);
+        Assert.Contains("embedded resources of 'KitStack.Seeding.Tests'", source.Description, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task EmbeddedResource_finds_a_file_by_its_folder_and_name()
+    {
+        var source = new EmbeddedResourceSeedFileSource(typeof(FileSourceTests).Assembly);
+
+        var colors = await source.ReadListAsync<Color>("Reference/01Colors.json");
+        Assert.Equal(["GREEN"], colors.Select(x => x.Code));
+    }
+
+    [Fact]
+    public async Task EmbeddedResource_without_prefix_rejects_an_ambiguous_name()
+    {
+        var source = new EmbeddedResourceSeedFileSource(typeof(FileSourceTests).Assembly);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => source.TryOpenReadAsync("01Colors.json", CancellationToken.None));
+        Assert.Contains("Files.Reference.01Colors.json", ex.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -50,6 +69,7 @@ public class FileSourceTests
         var wrongPrefix = new EmbeddedResourceSeedFileSource(typeof(FileSourceTests).Assembly, "Other.Files");
 
         Assert.Equal(2, (await withPrefix.ReadListAsync<Color>("01Colors.json")).Count);
+        Assert.Contains("'KitStack.Seeding.Tests.Files.*'", withPrefix.Description, StringComparison.Ordinal);
         Assert.Null(await wrongPrefix.TryOpenReadAsync("01Colors.json", CancellationToken.None));
     }
 
