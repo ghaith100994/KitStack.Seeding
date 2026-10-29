@@ -1,0 +1,7 @@
+[
+  { "Name": "Damascus", "CountryCode": "SY", "RecordedInDays": -30 },
+  { "Name": "Aleppo", "CountryCode": "SY", "RecordedInDays": -12 },
+  { "Name": "Amman", "CountryCode": "JO", "RecordedInDays": -3 },
+  // Skipped with a warning: no such country.
+  { "Name": "Atlantis", "CountryCode": "XX", "RecordedInDays": 0 }
+]

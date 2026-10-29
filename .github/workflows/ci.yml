@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+      # --blame-hang-timeout fails a hung test run quickly with a dump instead of waiting for the job timeout.
+      - name: Test
+        run: >
+          dotnet test -c Release --no-build
+          --logger "trx;LogFileName=test-results.trx"
+          --collect:"XPlat Code Coverage"
+          --blame-hang-timeout 5m
+          --results-directory TestResults
+
+      - name: Run the sample twice (second run must add nothing)
+        run: |
+          dotnet run -c Release --no-build --project samples/KitStack.Seeding.Sample
+          dotnet run -c Release --no-build --project samples/KitStack.Seeding.Sample
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          files = glob.glob('TestResults/**/coverage.cobertura.xml', recursive=True)
+          if not files:
+              raise SystemExit("no coverage report")
+          rows = ["| Package | Line | Branch |", "|---|---|---|"]
+          for pkg in ET.parse(files[0]).getroot().iter('package'):
+              name = pkg.get('name')
+              if name.startswith('KitStack') and 'Tests' not in name and 'Sample' not in name:
+                  rows.append(f"| {name} | {float(pkg.get('line-rate')):.1%} | {float(pkg.get('branch-rate')):.1%} |")
+          with open(__import__('os').environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write("## Coverage\n\n" + "\n".join(rows) + "\n")
+          PY
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            TestResults/**/*.trx
+            TestResults/**/coverage.cobertura.xml

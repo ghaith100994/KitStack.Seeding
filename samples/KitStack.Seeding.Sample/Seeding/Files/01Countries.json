@@ -1,0 +1,7 @@
+// Lookup rows are matched by Code. Add rows freely in later releases; never rename a Code.
+[
+  { "Code": "SY", "NameEn": "Syria", "NameAr": "سوريا" },
+  { "Code": "JO", "NameEn": "Jordan", "NameAr": "الأردن" },
+  { "Code": "LB", "NameEn": "Lebanon", "NameAr": "لبنان" },
+  { "Code": "IQ", "NameEn": "Iraq", "NameAr": "العراق", "IsActive": false },
+]

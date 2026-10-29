@@ -1,0 +1,24 @@
+# Visual Studio / Rider / dotnet
+bin/
+obj/
+.vs/
+*.user
+*.suo
+
+# NuGet
+*.nupkg
+*.snupkg
+nupkg/
+
+# Build and test results
+artifacts/
+build/
+publish/
+TestResults/
+
+# Rider
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

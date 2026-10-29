@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Ordered, idempotent seeding runner for .NET: seed file sources (content folder, embedded resources, memory), shared JSON settings, failure policies and DI registration with assembly scanning.</Description>
+    <PackageId>KitStack.Seeding</PackageId>
+    <PackageTags>kitstack seeding seed data json lookup</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RootNamespace>KitStack.Seeding</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KitStack.Seeding.Abstractions\KitStack.Seeding.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="KitStack.Seeding.Tests" />
+  </ItemGroup>
+</Project>

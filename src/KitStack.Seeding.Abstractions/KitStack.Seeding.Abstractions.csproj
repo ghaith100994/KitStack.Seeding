@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Abstractions for KitStack.Seeding: ISeeder, ISeederRunner, ISeedFileSource, failure policies and seeding results. No EF Core dependency.</Description>
+    <PackageId>KitStack.Seeding.Abstractions</PackageId>
+    <PackageTags>kitstack seeding seed data abstractions</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RootNamespace>KitStack.Seeding</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+</Project>

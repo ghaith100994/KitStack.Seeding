@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>EF Core seeders for KitStack.Seeding: insert-if-empty JSON seeders, additive natural-key lookup seeders that respect soft deletes, resolving seeders for rows with foreign keys, a migrate-then-seed initializer and an EF Core UseSeeding bridge.</Description>
+    <PackageId>KitStack.Seeding.EntityFrameworkCore</PackageId>
+    <PackageTags>kitstack seeding efcore entityframeworkcore seed data lookup json</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KitStack.Seeding\KitStack.Seeding.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="KitStack.Seeding.Tests" />
+  </ItemGroup>
+</Project>

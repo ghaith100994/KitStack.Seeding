@@ -1,0 +1,5 @@
+[
+  { "Code": "SYP", "Name": "Syrian pound", "DecimalPlaces": 2 },
+  { "Code": "JOD", "Name": "Jordanian dinar", "DecimalPlaces": 3 },
+  { "Code": "USD", "Name": "US dollar", "DecimalPlaces": 2 }
+]

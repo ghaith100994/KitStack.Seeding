@@ -1,0 +1,104 @@
+name: Publish NuGet packages
+
+# Packs and publishes KitStack.Seeding.* packages to nuget.org when a tag like v1.2.3 is pushed.
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: publish-nuget-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PACK_OUTPUT: ./nupkg
+
+jobs:
+  build-pack-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'Directory.Packages.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Extract version from tag
+        id: vars
+        run: |
+          TAG="${GITHUB_REF##*/}"
+          # Allow tags like v1.2.3 or 1.2.3
+          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build (produce portable PDBs)
+        run: dotnet build -c Release -p:DebugType=portable -p:DebugSymbols=true -p:Version=${{ steps.vars.outputs.version }} --no-restore
+
+      - name: Test
+        run: dotnet test -c Release --no-build
+
+      - name: Pack (nupkg + snupkg)
+        run: |
+          set -euo pipefail
+          VERSION=${{ steps.vars.outputs.version }}
+          mkdir -p $PACK_OUTPUT
+
+          for project in \
+            KitStack.Seeding.Abstractions \
+            KitStack.Seeding \
+            KitStack.Seeding.EntityFrameworkCore
+          do
+            echo "Packing $project v$VERSION"
+            dotnet pack "src/$project/$project.csproj" \
+              -c Release -o $PACK_OUTPUT --no-build \
+              /p:Version=$VERSION /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg
+          done
+
+      - name: List produced packages
+        run: ls -la $PACK_OUTPUT
+
+      - name: Publish to NuGet (push all nupkg + snupkg)
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NUGET_API_KEY:-}" ]; then
+            echo "NUGET_API_KEY secret is not set. Skipping publish."
+            exit 0
+          fi
+
+          for pkg in $PACK_OUTPUT/*.nupkg; do
+            [[ "$pkg" == *".symbols.nupkg" ]] && continue
+            echo "Pushing $pkg"
+            dotnet nuget push "$pkg" -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
+          done
+
+          for sym in $PACK_OUTPUT/*.snupkg; do
+            [ -f "$sym" ] || continue
+            echo "Pushing symbol package $sym"
+            dotnet nuget push "$sym" -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
+          done
+
+      - name: Upload built packages as workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kitstack-seeding-packages-${{ github.ref_name }}
+          path: ${{ env.PACK_OUTPUT }}
