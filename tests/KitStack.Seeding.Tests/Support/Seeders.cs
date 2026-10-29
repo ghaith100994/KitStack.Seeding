@@ -46,7 +46,7 @@ public class CurrenciesSeeder(ISeedFileSource<TestDbContext> files, ILogger<Curr
     }
 }
 
-/// <summary>Links each new stage to its next stage by code after the insert, like the ERP's LegalCaseStagesSeeder.</summary>
+/// <summary>Links each new stage to its next stage by code after the insert.</summary>
 public class StagesSeeder(ISeedFileSource<TestDbContext> files, ILogger<StagesSeeder> logger)
     : LookupSeeder<TestDbContext, Stage>(files, logger)
 {

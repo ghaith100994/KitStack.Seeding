@@ -7,7 +7,7 @@ namespace KitStack.Seeding.EntityFrameworkCore;
 /// Seeds rows that reference other data: each file row (<typeparamref name="TRow"/>, a plain DTO) names its references
 /// by natural key (a lookup code, a person's e-mail, ...), and <see cref="ResolveAsync"/> turns it into an entity.
 /// The seeder runs only while the table is empty, and waits for a later run while <see cref="IsReadyAsync"/> is
-/// <see langword="false"/> (e.g. the people it references are seeded by another module).
+/// <see langword="false"/> (e.g. the people it references are seeded by another context).
 /// <code>
 /// public class CitiesSeeder(ISeedFileSource&lt;AppDbContext&gt; files, ILogger&lt;CitiesSeeder&gt; logger)
 ///     : ResolvingSeeder&lt;AppDbContext, City, CitiesSeeder.Row&gt;(files, logger)

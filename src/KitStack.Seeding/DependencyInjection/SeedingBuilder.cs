@@ -32,7 +32,7 @@ public sealed class SeedingBuilder<TContext>
 
     /// <summary>
     /// Registers every concrete, non-generic class in <paramref name="assembly"/> that implements
-    /// <see cref="ISeeder{TContext}"/>. Abstract bases (per-module shims) are skipped.
+    /// <see cref="ISeeder{TContext}"/>. Abstract base classes are skipped.
     /// </summary>
     public SeedingBuilder<TContext> AddSeedersFromAssembly(Assembly assembly)
     {

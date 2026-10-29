@@ -17,7 +17,7 @@ public class Country : ISeedActivatable
     public string? Name { get; set; }
     public CountryKind Kind { get; set; }
 
-    // Like the ERP's ActivationEntity: not bound from JSON, read from each row by the lookup seeder.
+    // Not bound from JSON: the lookup seeder reads it from each row.
     [JsonIgnore]
     public bool IsActive { get; set; }
 

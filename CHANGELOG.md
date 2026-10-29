@@ -2,7 +2,7 @@
 
 ## 0.1.0
 
-First release, extracted from the seeding code repeated in every InnovatePro ERP module.
+First release.
 
 ### Added
 

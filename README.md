@@ -5,9 +5,7 @@
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-blue.svg)](https://dotnet.microsoft.com/)
 
 KitStack.Seeding seeds reference data, lookup data and demo data from versioned JSON files into EF Core, in a fixed
-order, once per start, safely. It is the generic part of the seeding code that every module of the InnovatePro ERP
-copied (`*JsonSeederBase`, `*LookupSeederBase`, `*DemoSeederBase`, `*SeederRunner`, `*DbInitializer`, `I*Seeder`),
-extracted into one library.
+order, once per start, safely.
 
 EF Core's `HasData` and `UseSeeding` do not cover what line-of-business apps need from seed files:
 
@@ -135,7 +133,7 @@ public class CitiesSeeder(ISeedFileSource<AppDbContext> files, ILogger<CitiesSee
     protected override string FileName => "100Cities.json";
     public override int Order => AppSeedOrder.Cities;
 
-    // Wait for a later start until the countries exist (e.g. seeded by another module).
+    // Wait for a later start until the countries exist (e.g. seeded by another context).
     protected override Task<bool> IsReadyAsync(AppDbContext db, CancellationToken ct) => db.Countries.AnyAsync(ct);
 
     protected override async Task<City?> ResolveAsync(Row row, AppDbContext db, CancellationToken ct)
@@ -232,12 +230,6 @@ services.AddSeeding<AppDbContext>(o => o.Files.Use(files)).AddSeeder<CountriesSe
 ```
 
 This repository's own tests ([tests/KitStack.Seeding.Tests](tests/KitStack.Seeding.Tests)) show the pattern.
-
-## Migrating the ERP modules
-
-[docs/migrating-from-erp.md](docs/migrating-from-erp.md) maps each ERP seeding file (LegalAffairs and
-PublicRelations are used as the examples) to the library, with the module shims and the small behaviour
-differences.
 
 ## Building
 

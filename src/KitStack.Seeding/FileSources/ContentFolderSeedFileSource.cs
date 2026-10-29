@@ -2,8 +2,7 @@ namespace KitStack.Seeding;
 
 /// <summary>
 /// Reads seed files from a folder. A relative folder is resolved against <see cref="AppContext.BaseDirectory"/>, which
-/// is the application's output folder. (The ERP code used <c>Assembly.GetExecutingAssembly().Location</c>; inside a
-/// library that would point at the library's own folder.)
+/// is the application's output folder (not the current directory, and not this library's own location).
 /// </summary>
 public sealed class ContentFolderSeedFileSource : ISeedFileSource
 {
