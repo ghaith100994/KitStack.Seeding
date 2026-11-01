@@ -19,6 +19,10 @@ env:
 jobs:
   build-pack-publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required for NuGet Trusted Publishing: lets the job request a GitHub OIDC token.
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -75,15 +79,20 @@ jobs:
       - name: List produced packages
         run: ls -la $PACK_OUTPUT
 
+      # Trusted Publishing: GitHub issues an OIDC token for this workflow run, and nuget.org exchanges it for a
+      # short-lived (1 hour) API key. The nuget.org policy must name this repository and this workflow file
+      # (publish-nuget.yml). No long-lived API key is stored in the repository.
+      - name: NuGet login (OIDC, Trusted Publishing)
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ghaith100994
+
       - name: Publish to NuGet (push all nupkg + snupkg)
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: |
           set -euo pipefail
-          if [ -z "${NUGET_API_KEY:-}" ]; then
-            echo "NUGET_API_KEY secret is not set. Skipping publish."
-            exit 0
-          fi
 
           for pkg in $PACK_OUTPUT/*.nupkg; do
             [[ "$pkg" == *".symbols.nupkg" ]] && continue

@@ -240,7 +240,8 @@ dotnet run --project samples/KitStack.Seeding.Sample
 ```
 
 Tagging `vX.Y.Z` runs [publish-nuget.yml](.github/workflows/publish-nuget.yml), which packs the three packages at
-that version and pushes them to nuget.org when the `NUGET_API_KEY` secret is set.
+that version and pushes them to nuget.org with [Trusted Publishing](https://learn.microsoft.com/nuget/nuget-org/trusted-publishing):
+the workflow signs in to nuget.org with a GitHub OIDC token, so no API key is stored in the repository.
 
 ## License
 
